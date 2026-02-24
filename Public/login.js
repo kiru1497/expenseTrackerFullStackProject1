@@ -19,7 +19,7 @@ async function handleLogin(event){
                 alert("User not found (Email is wrong)");
             }
 
-            else if(error.response.status === 400){
+            else if(error.response.status === 401){
                 alert("Incorrect password");
             }
 
