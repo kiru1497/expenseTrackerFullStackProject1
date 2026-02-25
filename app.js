@@ -20,8 +20,7 @@ app.use("/",expenseRoutes);
 
 const {connectDb, sequelize} = require("./utils/db"); 
 
-require("./models/usersSignup"); 
-require("./models/expense"); 
+require("./models/associations"); 
 
 const startServer = async()=>{
     try {

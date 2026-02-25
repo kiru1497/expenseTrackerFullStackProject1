@@ -11,7 +11,8 @@ const addExpense = async (req, res) => {
     const expense = await Expense.create({
       category,
       description,
-      amount
+      amount,
+      usersSignupId: req.session.userId 
     });
 
     res.status(201).json(expense);
@@ -25,7 +26,11 @@ const addExpense = async (req, res) => {
 
 const getAllExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.findAll();
+    const expenses = await Expense.findAll({
+    where: {
+    usersSignupId: req.session.userId
+  }
+});
     res.status(200).json(expenses);
   } catch (error) {
     console.log(error);
@@ -39,8 +44,11 @@ const deleteExpense = async (req, res) => {
     const id = req.params.id;
 
     const deleted = await Expense.destroy({
-      where: { id }
-    });
+    where: {
+    id: req.params.id,
+    usersSignupId: req.session.userId
+  }
+});
 
     if (!deleted) {
       return res.status(404).json({ message: "Expense not found" });
@@ -60,7 +68,12 @@ const updateExpense = async (req, res) => {
     const id = req.params.id;
     const { category, description, amount } = req.body;
 
-    const expense = await Expense.findByPk(id);
+    const expense = await Expense.findOne({
+    where: {
+    id: req.params.id,
+    usersSignupId: req.session.userId
+  }
+});
 
     if (!expense) {
       return res.status(404).json({ message: "Expense not found" });
