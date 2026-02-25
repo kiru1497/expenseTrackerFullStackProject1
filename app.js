@@ -1,18 +1,27 @@
 const express = require("express"); 
 const app = express(); 
-
+const session = require("express-session");
 const path = require("path"); 
 
+
 const userRoutes = require("./routes/userRoutes"); 
+const expenseRoutes = require("./routes/expenseRoutes"); 
 
 app.use(express.json()); 
+app.use(session({
+  secret: "mysecretkey",
+  resave: false,
+  saveUninitialized: false
+}));
 app.use(express.static(path.join(__dirname,"public"))); 
 
 app.use("/user",userRoutes); 
+app.use("/",expenseRoutes); 
 
 const {connectDb, sequelize} = require("./utils/db"); 
 
 require("./models/usersSignup"); 
+require("./models/expense"); 
 
 const startServer = async()=>{
     try {

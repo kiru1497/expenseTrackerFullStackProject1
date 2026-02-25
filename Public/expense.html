@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
+  </head>
+  <body>
+    <h1 class="text-center my-4">Expense Tracker</h1>
+    <form id="expenseForm">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr class="table-primary">
+            <th>Expense Category</th>
+            <th>Expense Description</th>
+            <th>Expense Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTableBody">
+          <tr data-category="Health">
+            <td>Health</td>
+            <td>
+              <label class="visually-hidden" for="health-description"
+                >Description for Health</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="health-description"
+                required
+              />
+            </td>
+            <td>
+              <label class="visually-hidden" for="health-amount"
+                >Amount for Health</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                min="0"
+                id="health-amount"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+          <tr data-category="Entertainment">
+            <td>Entertainment</td>
+            <td>
+              <label class="visually-hidden" for="entertainment-description"
+                >Description for Entertainment</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="entertainment-description"
+                required
+              />
+            </td>
+            <td>
+              <label class="visually-hidden" for="entertainment-amount"
+                >Amount for Entertainment</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                min="0"
+                id="entertainment-amount"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+          <tr data-category="Travel">
+            <td>Travel</td>
+            <td>
+              <label for="travel-description" class="visually-hidden"
+                >Description for Shopping</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="travel-description"
+                required
+              />
+            </td>
+            <td>
+              <label class="visually-hidden" for="travel-amount"
+                >Amount for travel</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                min="0"
+                id="travel-amount"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+          <tr data-category="Shopping">
+            <td>Shopping</td>
+            <td>
+              <label for="shopping-description" class="visually-hidden"
+                >Description for Shopping</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="shopping-description"
+                required
+              />
+            </td>
+            <td>
+              <label for="shopping-amount" class="visually-hidden"
+                >Amount for Shopping</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                id="shopping-amount"
+                min="0"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+          <tr data-category="Food">
+            <td>Food</td>
+            <td>
+              <label for="food-description" class="visually-hidden"
+                >Description for Food</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="food-description"
+                required
+              />
+            </td>
+            <td>
+              <label for="food-amount" class="visually-hidden"
+                >Amount for Food</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                id="food-amount"
+                min="0"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+          <tr data-category="Bills">
+            <td>Bills</td>
+            <td>
+              <label for="bills-description" class="visually-hidden"
+                >Description for Bills</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="bills-description"
+                required
+              />
+            </td>
+            <td>
+              <label for="bills-amount" class="visually-hidden"
+                >Amount for Bills</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                id="bills-amount"
+                min="0"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+          <tr data-category="Investment">
+            <td>Investment</td>
+            <td>
+              <label for="investment-description" class="visually-hidden"
+                >Description for Investment</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="investment-description"
+                required
+              />
+            </td>
+            <td>
+              <label for="investment-amount" class="visually-hidden"
+                >Amount for Investment</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                id="investment-amount"
+                min="0"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+          <tr data-category="Miscellaneous">
+            <td>Miscellaneous</td>
+            <td>
+              <label for="miscellaneous-description" class="visually-hidden"
+                >Description for Miscellaneous</label
+              >
+              <input
+                type="text"
+                class="form-control description"
+                id="miscellaneous-description"
+                required
+              />
+            </td>
+            <td>
+              <label for="miscellaneous-amount" class="visually-hidden"
+                >Amount for Miscellaneous</label
+              >
+              <input
+                type="number"
+                class="form-control amount"
+                id="miscellaneous-amount"
+                min="0"
+                required
+              />
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary add-expense">
+                Add Expense
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+    <div id="output" class="container mt-5">
+      <h2>Submitted Expenses</h2>
+      <ul id="expenseList" class="list-group"></ul>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+    <script src="expense.js"></script>
+  </body>
+</html>

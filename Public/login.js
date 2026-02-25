@@ -12,6 +12,8 @@ async function handleLogin(event){
 
             if(response.status == 200){
                 alert("login successful!"); 
+
+                window.location.href = "/expense.html";
             }
     } catch (error) {
         if(error.response){
