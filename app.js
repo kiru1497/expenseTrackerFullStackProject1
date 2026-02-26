@@ -6,6 +6,7 @@ const path = require("path");
 
 const userRoutes = require("./routes/userRoutes"); 
 const expenseRoutes = require("./routes/expenseRoutes"); 
+const paymentRoutes = require("./routes/paymentRoutes");
 
 app.use(express.json()); 
 app.use(session({
@@ -17,6 +18,7 @@ app.use(express.static(path.join(__dirname,"public")));
 
 app.use("/user",userRoutes); 
 app.use("/",expenseRoutes); 
+app.use("/", paymentRoutes);
 
 const {connectDb, sequelize} = require("./utils/db"); 
 

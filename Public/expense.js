@@ -131,3 +131,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
+// ================= PREMIUM PAYMENT =================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const buyPremiumBtn = document.getElementById("buyPremiumBtn");
+
+  if (!buyPremiumBtn) return;
+
+  buyPremiumBtn.addEventListener("click", async () => {
+
+    try {
+
+      // 1️⃣ Call backend to create order
+      const response = await axios.post("/create-order");
+
+      const paymentSessionId = response.data.paymentSessionId;
+
+      // 2️⃣ Initialize Cashfree
+      const cashfree = Cashfree({
+        mode: "sandbox"
+      });
+
+      // 3️⃣ Open checkout
+      cashfree.checkout({
+        paymentSessionId: paymentSessionId,
+        redirectTarget: "_self"
+      });
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to initiate payment");
+    }
+
+  });
+
+});

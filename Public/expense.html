@@ -11,9 +11,17 @@
       crossorigin="anonymous"
     />
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   </head>
   <body>
-    <h1 class="text-center my-4">Expense Tracker</h1>
+    <div class="container mt-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1>Expense Tracker</h1>
+        <button id="buyPremiumBtn" class="btn btn-warning">
+        Buy Premium Membership
+        </button>
+      </div>
+    </div>
     <form id="expenseForm">
       <table class="table table-striped table-sm">
         <thead>

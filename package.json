@@ -19,10 +19,13 @@
   },
   "homepage": "https://github.com/kiru1497/expenseTrackerFullStackProject1#readme",
   "dependencies": {
+    "@cashfreepayments/cashfree-js": "^1.0.6",
     "bcrypt": "^6.0.0",
+    "cashfree-pg": "^5.1.0",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "mysql2": "^3.17.2",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "uuid": "^13.0.0"
   }
 }
