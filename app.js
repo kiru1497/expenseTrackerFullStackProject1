@@ -2,23 +2,32 @@ const express = require("express");
 const app = express(); 
 const session = require("express-session");
 const path = require("path"); 
+require('dotenv').config();
 
 
 const userRoutes = require("./routes/userRoutes"); 
 const expenseRoutes = require("./routes/expenseRoutes"); 
 const paymentRoutes = require("./routes/paymentRoutes");
+const passwordRoutes = require("./routes/passwordRoutes");
+
 
 app.use(express.json()); 
 app.use(session({
   secret: "mysecretkey",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: false,        // must be false on localhost
+    httpOnly: true,
+    sameSite: "lax"       // THIS IS IMPORTANT
+  }
 }));
 app.use(express.static(path.join(__dirname,"public"))); 
 
 app.use("/user",userRoutes); 
 app.use("/",expenseRoutes); 
 app.use("/", paymentRoutes);
+app.use("/password", passwordRoutes);
 
 const {connectDb, sequelize} = require("./utils/db"); 
 

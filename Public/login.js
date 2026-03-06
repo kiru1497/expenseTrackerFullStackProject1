@@ -34,3 +34,35 @@ async function handleLogin(event){
         }
     }
 }
+
+const forgotBtn = document.getElementById("forgotPasswordBtn");
+const forgotSection = document.getElementById("forgotPasswordSection");
+
+forgotBtn.addEventListener("click", () => {
+  forgotSection.classList.remove("d-none");
+});
+
+const forgotForm = document.getElementById("forgotPasswordForm");
+
+forgotForm.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const email = document.getElementById("resetEmail").value;
+
+  try {
+
+    const response = await axios.post(
+      "/password/forgotpassword", { email }
+    );
+
+    alert("Password reset email sent");
+
+  } catch (error) {
+
+    console.log(error);
+    alert("Failed to send email");
+
+  }
+
+});

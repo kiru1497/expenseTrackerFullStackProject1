@@ -30,7 +30,27 @@
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100">Login</button>
+                    <div class="text-center mt-2">
+                      <button id="forgotPasswordBtn" class="btn btn-link">
+                        Forgot Password?
+                      </button> 
+                    </div>
                 </form>
+                  <div id="forgotPasswordSection" class="container mt-3 d-none">
+                  <h4>Reset Password</h4>
+                  <form id="forgotPasswordForm">
+                    <input 
+                      type="email" 
+                      id="resetEmail" 
+                      class="form-control mb-2"
+                      placeholder="Enter your email"
+                      required
+                    />
+                    <button class="btn btn-primary">
+                      Send Reset Link
+                    </button>
+                </form>
+              </div>
                 <p class="text-center mt-3 mb-0">
                     New user? Create an account now!
                     <a href="#">Sign up</a>

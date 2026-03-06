@@ -1,8 +1,19 @@
 const tableBody = document.getElementById("expenseTableBody");
 const expenseList = document.getElementById("expenseList");
 
-function renderExpense(expense) {
+const premiumSection = document.getElementById("premiumBanner");
+const buyPremiumBtn = document.getElementById("buyPremiumBtn");
+const leaderboardBtn = document.getElementById("leaderboardBtn");
+const leaderboardSection = document.getElementById("leaderboardSection");
+const leaderboardBody = document.getElementById("leaderboardBody");
 
+const aiSection = document.getElementById("aiInsightsSection");
+const aiContent = document.getElementById("aiInsightsContent");
+
+
+// ================= RENDER EXPENSE =================
+
+function renderExpense(expense) {
   const li = document.createElement("li");
   li.className =
     "list-group-item d-flex justify-content-between align-items-center";
@@ -23,8 +34,10 @@ function renderExpense(expense) {
   expenseList.appendChild(li);
 }
 
-tableBody.addEventListener("click", async (e) => {
 
+// ================= ADD EXPENSE =================
+
+tableBody.addEventListener("click", async (e) => {
   const btn = e.target.closest(".add-expense");
   if (!btn) return;
 
@@ -40,7 +53,6 @@ tableBody.addEventListener("click", async (e) => {
   }
 
   try {
-
     const response = await axios.post("/add-expense", {
       category,
       description,
@@ -49,7 +61,6 @@ tableBody.addEventListener("click", async (e) => {
 
     renderExpense(response.data);
 
-    // clear inputs
     row.querySelector(".description").value = "";
     row.querySelector(".amount").value = "";
 
@@ -59,6 +70,9 @@ tableBody.addEventListener("click", async (e) => {
   }
 });
 
+
+// ================= DELETE + EDIT =================
+
 expenseList.addEventListener("click", async (e) => {
 
   const li = e.target.closest("li");
@@ -66,9 +80,8 @@ expenseList.addEventListener("click", async (e) => {
 
   const id = li.dataset.id;
 
-  // ------------------ DELETE ------------------
+  // DELETE
   if (e.target.classList.contains("delete-btn")) {
-
     try {
       await axios.delete(`/delete-expense/${id}`);
       li.remove();
@@ -78,7 +91,7 @@ expenseList.addEventListener("click", async (e) => {
     }
   }
 
-  // ------------------ EDIT ------------------
+  // EDIT
   if (e.target.classList.contains("edit-btn")) {
 
     const text = li.querySelector("span").innerText;
@@ -94,7 +107,6 @@ expenseList.addEventListener("click", async (e) => {
     if (!newDescription || !newAmount) return;
 
     try {
-
       const response = await axios.put(`/edit-expense/${id}`, {
         category,
         description: newDescription,
@@ -115,45 +127,20 @@ expenseList.addEventListener("click", async (e) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
 
-  try {
+// ================= BUY PREMIUM =================
 
-    const response = await axios.get("/expenses");
-
-    response.data.forEach(expense => {
-      renderExpense(expense);
-    });
-
-  } catch (error) {
-    console.error("Failed to fetch expenses", error);
-  }
-
-});
-
-// ================= PREMIUM PAYMENT =================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  const buyPremiumBtn = document.getElementById("buyPremiumBtn");
-
-  if (!buyPremiumBtn) return;
-
+if (buyPremiumBtn) {
   buyPremiumBtn.addEventListener("click", async () => {
-
     try {
-
-      // 1️⃣ Call backend to create order
       const response = await axios.post("/create-order");
 
       const paymentSessionId = response.data.paymentSessionId;
 
-      // 2️⃣ Initialize Cashfree
       const cashfree = Cashfree({
         mode: "sandbox"
       });
 
-      // 3️⃣ Open checkout
       cashfree.checkout({
         paymentSessionId: paymentSessionId,
         redirectTarget: "_self"
@@ -163,7 +150,89 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error(error);
       alert("Failed to initiate payment");
     }
-
   });
+}
 
+
+// ================= LEADERBOARD =================
+
+if (leaderboardBtn) {
+  leaderboardBtn.addEventListener("click", async () => {
+
+    try {
+      const response = await axios.get("/leaderboard");
+
+      leaderboardBody.innerHTML = "";
+
+      response.data.forEach((user, index) => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${user.name}</td>
+          <td>₹${user.totalExpense || 0}</td>
+        `;
+
+        leaderboardBody.appendChild(row);
+      });
+
+      leaderboardSection.classList.remove("d-none");
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load leaderboard");
+    }
+  });
+}
+
+
+// ================= PAGE LOAD =================
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+  try {
+
+    // 1️⃣ Check user
+    const userResponse = await axios.get("/user/me");
+
+    const isPremium = userResponse.data.isPremium;
+
+    if (isPremium) {
+
+      // Show premium banner
+      if (premiumSection) {
+        premiumSection.classList.remove("d-none");
+      }
+
+      // Hide buy button
+      if (buyPremiumBtn) {
+        buyPremiumBtn.style.display = "none";
+      }
+
+      // ================= AI INSIGHTS =================
+      if (aiSection && aiContent) {
+        aiContent.innerText = "Analyzing your spending habits... 🧠"; // Loading state
+        aiSection.classList.remove("d-none");
+
+        try {
+          const response = await axios.get("/ai-insights");
+          aiContent.innerText = response.data.insights;
+        } catch (err) {
+          aiContent.innerText = "Note: AI insights are currently unavailable. Try again later!";
+          console.error("AI Fetch Error:", err);
+        }
+      }
+    }
+
+    // 2️⃣ Load expenses
+    const expenseResponse = await axios.get("/expenses");
+
+    expenseResponse.data.forEach(expense => {
+      renderExpense(expense);
+    });
+
+  } catch (error) {
+    console.error("Failed to load page", error);
+  }
 });

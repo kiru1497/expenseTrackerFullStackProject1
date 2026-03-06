@@ -29,7 +29,7 @@ const createOrder = async (
 
       order_meta: {
         return_url: "http://localhost:3000/payment-status/" + orderId,
-        payment_methods: "ccc,upi,nb"
+        // payment_methods: "ccc,upi,nb"
       },
 
       order_expiry_time: formattedExpiryDate
@@ -45,6 +45,11 @@ const createOrder = async (
   }
 };
 
+const fetchOrder = async (orderId) => {
+  return await cashfree.PGFetchOrder(orderId);
+};
+
 module.exports = {
-  createOrder
+  createOrder,
+  fetchOrder
 };
