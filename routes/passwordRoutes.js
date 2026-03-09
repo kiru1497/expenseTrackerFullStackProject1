@@ -8,4 +8,8 @@ router.post("/forgotpassword", (req,res,next)=>{
   next();
 }, passwordController.forgotPassword);
 
+router.get("/resetpassword/:id", passwordController.resetPasswordPage);
+
+router.post("/updatepassword/:id", passwordController.updatePassword);
+
 module.exports = router;

@@ -1,5 +1,12 @@
 const UsersSignup = require("../models/usersSignup");
+const ForgotPasswordRequests = require("../models/forgotPasswordRequests");
+
 const axios = require("axios");
+const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
+
+
+// ================= FORGOT PASSWORD =================
 
 const forgotPassword = async (req, res) => {
 
@@ -17,6 +24,19 @@ const forgotPassword = async (req, res) => {
       });
     }
 
+    // Generate UUID reset token
+    const id = uuidv4();
+
+    // Store reset request in DB
+    await ForgotPasswordRequests.create({
+      id: id,
+      usersSignupId: user.id,
+      isActive: true
+    });
+
+    const resetLink = `http://localhost:3000/password/resetpassword/${id}`;
+
+    // Send email via Brevo
     await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
@@ -35,7 +55,11 @@ Hello,
 
 You requested a password reset for your Expense Tracker account.
 
-If this was not you, please ignore this email.
+Click the link below to reset your password:
+
+${resetLink}
+
+If you did not request this, please ignore this email.
 `
       },
       {
@@ -47,7 +71,7 @@ If this was not you, please ignore this email.
     );
 
     res.status(200).json({
-      message: "Email sent successfully"
+      message: "Password reset email sent"
     });
 
   } catch (error) {
@@ -62,6 +86,95 @@ If this was not you, please ignore this email.
 
 };
 
+
+
+// ================= RESET PASSWORD PAGE =================
+
+const resetPasswordPage = async (req, res) => {
+
+  try {
+
+    const id = req.params.id;
+
+    const request = await ForgotPasswordRequests.findOne({
+      where: { id: id }
+    });
+
+    if (!request || request.isActive === false) {
+      return res.status(404).send("Invalid or expired reset link");
+    }
+
+    res.send(`
+      <h2>Reset Password</h2>
+
+      <form action="/password/updatepassword/${id}" method="POST">
+        <input 
+          type="password" 
+          name="newpassword" 
+          placeholder="Enter new password" 
+          required 
+        />
+        <br/><br/>
+        <button type="submit">Reset Password</button>
+      </form>
+    `);
+
+  } catch (error) {
+
+    console.log(error);
+    res.status(500).send("Something went wrong");
+
+  }
+
+};
+
+
+
+// ================= UPDATE PASSWORD =================
+
+const updatePassword = async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+    const { newpassword } = req.body;
+
+    const request = await ForgotPasswordRequests.findOne({
+      where: { id: id }
+    });
+
+    if (!request || request.isActive === false) {
+      return res.status(404).send("Invalid or expired reset link");
+    }
+
+    const user = await UsersSignup.findByPk(request.usersSignupId);
+
+    const hashedPassword = await bcrypt.hash(newpassword, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    // Deactivate reset link
+    request.isActive = false;
+
+    await request.save();
+
+    res.send("Password updated successfully. You can now login with the new password.");
+
+  } catch (error) {
+
+    console.log(error);
+    res.status(500).send("Failed to update password");
+
+  }
+
+};
+
+
+
 module.exports = {
-  forgotPassword
+  forgotPassword,
+  resetPasswordPage,
+  updatePassword
 };
