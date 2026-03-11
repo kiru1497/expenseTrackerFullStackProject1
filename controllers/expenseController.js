@@ -13,7 +13,7 @@ const addExpense = async (req, res) => {
 
   try {
 
-    const { category, description, amount } = req.body;
+    const { category, description, amount, note } = req.body;
 
     if (!category || !description || !amount) {
       await t.rollback();
@@ -25,6 +25,7 @@ const addExpense = async (req, res) => {
         category,
         description,
         amount,
+        note,
         usersSignupId: req.session.userId
       },
       { transaction: t }

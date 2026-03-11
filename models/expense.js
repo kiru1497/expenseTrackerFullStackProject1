@@ -13,7 +13,11 @@ const Expense = sequelize.define("Expense", {
   amount: {
     type: DataTypes.FLOAT,
     allowNull: false
-  }
+  },
+  note: {
+  type: DataTypes.STRING,
+  allowNull: true
+}
 });
 
 module.exports = Expense;

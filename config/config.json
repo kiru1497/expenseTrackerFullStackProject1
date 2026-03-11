@@ -1,0 +1,25 @@
+{
+  "development": {
+    "username": "root",
+    "password": "Edu@Games1973",
+    "database": "expensefullstackdb",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+
+  "test": {
+    "username": "root",
+    "password": "your_mysql_password",
+    "database": "expensefullstackdb",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+
+  "production": {
+    "username": "root",
+    "password": "your_mysql_password",
+    "database": "expensefullstackdb",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

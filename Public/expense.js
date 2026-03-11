@@ -185,7 +185,8 @@ tableBody.addEventListener("click", async (e) => {
     const response = await axios.post("/add-expense", {
       category,
       description,
-      amount
+      amount,
+      note:null 
     });
 
     const expense = response.data;
