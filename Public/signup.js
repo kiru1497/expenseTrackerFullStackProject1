@@ -19,7 +19,10 @@ async function handleSignup(event){
     .then(function(response){
         console.log(response.data); 
 
-        alert("Signup Successful!"); 
+        alert("Signup Successful!");
+
+        // Redirect to login page
+        window.location.href = "/login.html";
     })
     .catch(function(error){
         console.log(error); 
@@ -28,6 +31,6 @@ async function handleSignup(event){
         error.response?.data?.message ||
         "Signup failed. Please try again.";
 
-      alert(message);
+        alert(message);
     })
 }
