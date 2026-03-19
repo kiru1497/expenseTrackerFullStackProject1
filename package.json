@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/kiru1497/expenseTrackerFullStackProject1#readme",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1011.0",
     "@cashfreepayments/cashfree-js": "^1.0.6",
     "@getbrevo/brevo": "^4.0.1",
     "@google/genai": "^1.43.0",
+    "aws-sdk": "^2.1693.0",
     "axios": "^1.13.6",
     "bcrypt": "^6.0.0",
     "cashfree-pg": "^5.1.0",

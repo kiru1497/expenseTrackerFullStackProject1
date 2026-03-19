@@ -20,7 +20,6 @@ const pageInfo = document.getElementById("pageInfo");
 let currentPage = 1;
 const expensesPerPage = 10;
 
-
 // ================= REPORT ELEMENTS =================
 
 const reportSection = document.getElementById("reportSection");
@@ -31,15 +30,12 @@ const weeklyBtn = document.getElementById("weeklyReportBtn");
 const monthlyBtn = document.getElementById("monthlyReportBtn");
 const downloadBtn = document.getElementById("downloadReportBtn");
 
-
 let allExpenses = [];
 let isPremiumUser = false;
-
 
 // ================= RENDER EXPENSE =================
 
 function renderExpense(expense) {
-
   const li = document.createElement("li");
 
   li.className =
@@ -60,14 +56,11 @@ function renderExpense(expense) {
   `;
 
   expenseList.appendChild(li);
-
 }
-
 
 // ================= PAGINATION RENDER =================
 
 function renderExpensesPage(page) {
-
   expenseList.innerHTML = "";
 
   const start = (page - 1) * expensesPerPage;
@@ -75,74 +68,53 @@ function renderExpensesPage(page) {
 
   const pageExpenses = allExpenses.slice(start, end);
 
-  pageExpenses.forEach(exp => renderExpense(exp));
+  pageExpenses.forEach((exp) => renderExpense(exp));
 
   const totalPages = Math.ceil(allExpenses.length / expensesPerPage);
 
   pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
-
 }
-
 
 // ================= PAGINATION BUTTONS =================
 
 if (prevPageBtn) {
-
   prevPageBtn.addEventListener("click", () => {
-
     if (currentPage > 1) {
-
       currentPage--;
       renderExpensesPage(currentPage);
-
     }
-
   });
-
 }
 
 if (nextPageBtn) {
-
   nextPageBtn.addEventListener("click", () => {
-
     const totalPages = Math.ceil(allExpenses.length / expensesPerPage);
 
     if (currentPage < totalPages) {
-
       currentPage++;
       renderExpensesPage(currentPage);
-
     }
-
   });
-
 }
 
 if (lastPageBtn) {
-
   lastPageBtn.addEventListener("click", () => {
-
     const totalPages = Math.ceil(allExpenses.length / expensesPerPage);
 
     currentPage = totalPages;
 
     renderExpensesPage(currentPage);
-
   });
-
 }
-
 
 // ================= RENDER REPORT =================
 
 function renderReport(expenses) {
-
   if (!reportTableBody) return;
 
   reportTableBody.innerHTML = "";
 
-  expenses.forEach(exp => {
-
+  expenses.forEach((exp) => {
     const row = document.createElement("tr");
 
     const date = new Date(exp.createdAt).toLocaleDateString();
@@ -155,16 +127,12 @@ function renderReport(expenses) {
     `;
 
     reportTableBody.appendChild(row);
-
   });
-
 }
-
 
 // ================= ADD EXPENSE =================
 
 tableBody.addEventListener("click", async (e) => {
-
   const btn = e.target.closest(".add-expense");
 
   if (!btn) return;
@@ -181,12 +149,11 @@ tableBody.addEventListener("click", async (e) => {
   }
 
   try {
-
     const response = await axios.post("/add-expense", {
       category,
       description,
       amount,
-      note:null 
+      note: null,
     });
 
     const expense = response.data;
@@ -197,23 +164,15 @@ tableBody.addEventListener("click", async (e) => {
 
     row.querySelector(".description").value = "";
     row.querySelector(".amount").value = "";
-
-  }
-
-  catch (error) {
-
+  } catch (error) {
     console.error(error);
     alert("Error adding expense");
-
   }
-
 });
-
 
 // ================= DELETE + EDIT =================
 
 expenseList.addEventListener("click", async (e) => {
-
   const li = e.target.closest("li");
 
   if (!li) return;
@@ -222,29 +181,20 @@ expenseList.addEventListener("click", async (e) => {
 
   // DELETE
   if (e.target.classList.contains("delete-btn")) {
-
     try {
-
       await axios.delete(`/delete-expense/${id}`);
 
-      allExpenses = allExpenses.filter(exp => exp.id != id);
+      allExpenses = allExpenses.filter((exp) => exp.id != id);
 
       renderExpensesPage(currentPage);
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
       console.error(error);
       alert("Failed to delete expense");
-
     }
-
   }
 
   // EDIT
   if (e.target.classList.contains("edit-btn")) {
-
     const text = li.querySelector("span").innerText;
     const parts = text.split(" — ");
 
@@ -258,86 +208,62 @@ expenseList.addEventListener("click", async (e) => {
     if (!newDescription || !newAmount) return;
 
     try {
-
       const response = await axios.put(`/edit-expense/${id}`, {
         category,
         description: newDescription,
-        amount: newAmount
+        amount: newAmount,
       });
 
       const updated = response.data;
 
-      const index = allExpenses.findIndex(exp => exp.id == id);
+      const index = allExpenses.findIndex((exp) => exp.id == id);
 
       if (index !== -1) {
         allExpenses[index] = updated;
       }
 
       renderExpensesPage(currentPage);
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
       console.error(error);
       alert("Failed to edit expense");
-
     }
-
   }
-
 });
-
 
 // ================= BUY PREMIUM =================
 
 if (buyPremiumBtn) {
-
   buyPremiumBtn.addEventListener("click", async () => {
-
     try {
-
       const response = await axios.post("/create-order");
 
       const paymentSessionId = response.data.paymentSessionId;
 
       const cashfree = Cashfree({
-        mode: "sandbox"
+        mode: "sandbox",
       });
 
       cashfree.checkout({
         paymentSessionId: paymentSessionId,
-        redirectTarget: "_self"
+        redirectTarget: "_self",
       });
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
       console.error(error);
       alert("Failed to initiate payment");
-
     }
-
   });
-
 }
-
 
 // ================= LEADERBOARD =================
 
 if (leaderboardBtn) {
-
   leaderboardBtn.addEventListener("click", async () => {
-
     try {
-
       const response = await axios.get("/leaderboard");
 
       leaderboardBody.innerHTML = "";
 
       response.data.forEach((user, index) => {
-
         const row = document.createElement("tr");
 
         row.innerHTML = `
@@ -347,49 +273,34 @@ if (leaderboardBtn) {
         `;
 
         leaderboardBody.appendChild(row);
-
       });
 
       leaderboardSection.classList.remove("d-none");
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
       console.error(error);
       alert("Failed to load leaderboard");
-
     }
-
   });
-
 }
-
 
 // ================= REPORT FILTERS =================
 
 if (dailyBtn) {
-
   dailyBtn.addEventListener("click", () => {
-
     if (!isPremiumUser) return;
 
     const today = new Date().toDateString();
 
-    const filtered = allExpenses.filter(exp =>
-      new Date(exp.createdAt).toDateString() === today
+    const filtered = allExpenses.filter(
+      (exp) => new Date(exp.createdAt).toDateString() === today,
     );
 
     renderReport(filtered);
-
   });
-
 }
 
 if (weeklyBtn) {
-
   weeklyBtn.addEventListener("click", () => {
-
     if (!isPremiumUser) return;
 
     const now = new Date();
@@ -397,86 +308,61 @@ if (weeklyBtn) {
 
     weekAgo.setDate(now.getDate() - 7);
 
-    const filtered = allExpenses.filter(exp => {
-
+    const filtered = allExpenses.filter((exp) => {
       const date = new Date(exp.createdAt);
 
       return date >= weekAgo && date <= now;
-
     });
 
     renderReport(filtered);
-
   });
-
 }
 
 if (monthlyBtn) {
-
   monthlyBtn.addEventListener("click", () => {
-
     if (!isPremiumUser) return;
 
     const now = new Date();
 
-    const filtered = allExpenses.filter(exp => {
-
+    const filtered = allExpenses.filter((exp) => {
       const date = new Date(exp.createdAt);
 
       return (
         date.getMonth() === now.getMonth() &&
         date.getFullYear() === now.getFullYear()
       );
-
     });
 
     renderReport(filtered);
-
   });
-
 }
-
 
 // ================= DOWNLOAD CSV =================
-
 if (downloadBtn) {
-
-  downloadBtn.addEventListener("click", () => {
-
+  downloadBtn.addEventListener("click", async () => {
     if (!isPremiumUser) return;
 
-    let csv = "Date,Description,Category,Amount\n";
+    try {
+      const response = await axios.get("/download");
 
-    allExpenses.forEach(exp => {
+      const fileURL = response.data.signedUrl;
 
-      const date = new Date(exp.createdAt).toLocaleDateString();
+      // Option 1: open in new tab
+      window.open(fileURL, "_blank");
 
-      csv += `${date},${exp.description},${exp.category},${exp.amount}\n`;
-
-    });
-
-    const blob = new Blob([csv], { type: "text/csv" });
-
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-
-    a.href = url;
-    a.download = "expense-report.csv";
-
-    a.click();
-
+      // Option 2 (optional): show link
+      alert("File ready! Download from: " + fileURL);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to download report");
+    }
   });
-
 }
-
 
 // ================= PAGE LOAD =================
 
 document.addEventListener("DOMContentLoaded", async () => {
-
   try {
-
     const userResponse = await axios.get("/user/me");
 
     const isPremium = userResponse.data.isPremium;
@@ -484,7 +370,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     isPremiumUser = isPremium;
 
     if (isPremium) {
-
       if (premiumSection) premiumSection.classList.remove("d-none");
 
       if (buyPremiumBtn) buyPremiumBtn.style.display = "none";
@@ -495,38 +380,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // AI INSIGHTS
       if (aiSection && aiContent) {
-
         aiContent.innerText = "Analyzing your spending habits... 🧠";
 
         aiSection.classList.remove("d-none");
 
         try {
-
           const response = await axios.get("/ai-insights");
 
           aiContent.innerText = response.data.insights;
-
-        }
-
-        catch (err) {
-
+        } catch (err) {
           aiContent.innerText =
             "Note: AI insights are currently unavailable. Try again later!";
 
           console.error("AI Fetch Error:", err);
-
         }
-
       }
-
-    }
-
-    else {
-
+    } else {
       if (reportSection) reportSection.style.display = "none";
 
       if (downloadBtn) downloadBtn.disabled = true;
-
     }
 
     const expenseResponse = await axios.get("/expenses");
@@ -534,13 +406,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     allExpenses = expenseResponse.data;
 
     renderExpensesPage(currentPage);
-
-  }
-
-  catch (error) {
-
+  } catch (error) {
     console.error("Failed to load page", error);
-
   }
-
 });
