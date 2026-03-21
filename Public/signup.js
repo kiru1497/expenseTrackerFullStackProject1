@@ -1,36 +1,36 @@
-async function handleSignup(event){
-    event.preventDefault(); 
+async function handleSignup(event) {
+  event.preventDefault();
 
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const confirmpassword = document.getElementById("confirmPassword").value.trim(); 
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const confirmpassword = document
+    .getElementById("confirmPassword")
+    .value.trim();
 
-    if(password !== confirmpassword){
-        alert("Passwords do not match!"); 
-        return; 
-    }
+  if (password !== confirmpassword) {
+    alert("Passwords do not match!");
+    return;
+  }
 
-    axios.post("http://localhost:3000/user/signup", {
-        name,
-        email,
-        password
-    })
-    .then(function(response){
-        console.log(response.data); 
+  try {
+    // ✅ FIXED (removed localhost)
+    const response = await axios.post("/user/signup", {
+      name,
+      email,
+      password,
+    });
 
-        alert("Signup Successful!");
+    alert("Signup Successful!");
 
-        // Redirect to login page
-        window.location.href = "/login.html";
-    })
-    .catch(function(error){
-        console.log(error); 
+    // ✅ FIXED route
+    window.location.href = "/login";
+  } catch (error) {
+    console.log(error);
 
-        const message =
-        error.response?.data?.message ||
-        "Signup failed. Please try again.";
+    const message =
+      error.response?.data?.message || "Signup failed. Please try again.";
 
-        alert(message);
-    })
+    alert(message);
+  }
 }
