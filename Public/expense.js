@@ -149,7 +149,7 @@ tableBody.addEventListener("click", async (e) => {
   }
 
   try {
-    const response = await axios.post("/add-expense", {
+    const response = await axios.post("/expense/add-expense", {
       category,
       description,
       amount,
@@ -182,7 +182,7 @@ expenseList.addEventListener("click", async (e) => {
   // DELETE
   if (e.target.classList.contains("delete-btn")) {
     try {
-      await axios.delete(`/delete-expense/${id}`);
+      await axios.delete(`/expense/delete-expense/${id}`);
 
       allExpenses = allExpenses.filter((exp) => exp.id != id);
 
@@ -208,7 +208,7 @@ expenseList.addEventListener("click", async (e) => {
     if (!newDescription || !newAmount) return;
 
     try {
-      const response = await axios.put(`/edit-expense/${id}`, {
+      const response = await axios.put(`/expense/edit-expense/${id}`, {
         category,
         description: newDescription,
         amount: newAmount,
@@ -235,7 +235,7 @@ expenseList.addEventListener("click", async (e) => {
 if (buyPremiumBtn) {
   buyPremiumBtn.addEventListener("click", async () => {
     try {
-      const response = await axios.post("/create-order");
+      const response = await axios.post("/payment/create-order");
 
       const paymentSessionId = response.data.paymentSessionId;
 
@@ -259,7 +259,7 @@ if (buyPremiumBtn) {
 if (leaderboardBtn) {
   leaderboardBtn.addEventListener("click", async () => {
     try {
-      const response = await axios.get("/leaderboard");
+      const response = await axios.get("/expense/leaderboard");
 
       leaderboardBody.innerHTML = "";
 
@@ -343,7 +343,7 @@ if (downloadBtn) {
     if (!isPremiumUser) return;
 
     try {
-      const response = await axios.get("/download");
+      const response = await axios.get("/expense/download");
 
       const fileURL = response.data.signedUrl;
 
@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         aiSection.classList.remove("d-none");
 
         try {
-          const response = await axios.get("/ai-insights");
+          const response = await axios.get("/expense/ai-insights");
 
           aiContent.innerText = response.data.insights;
         } catch (err) {
@@ -401,7 +401,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (downloadBtn) downloadBtn.disabled = true;
     }
 
-    const expenseResponse = await axios.get("/expenses");
+    const expenseResponse = await axios.get("/expense/expenses");
 
     allExpenses = expenseResponse.data;
 

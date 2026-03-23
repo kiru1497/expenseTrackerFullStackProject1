@@ -6,9 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 // ================= CREATE ORDER =================
 
 const createCashfreeOrder = async (req, res) => {
-
   try {
-
     const userId = req.session.userId;
 
     if (!userId) {
@@ -23,7 +21,7 @@ const createCashfreeOrder = async (req, res) => {
       orderId,
       amount,
       status: "PENDING",
-      usersSignupId: userId
+      usersSignupId: userId,
     });
 
     // 2️⃣ Call Cashfree to create payment session
@@ -32,18 +30,17 @@ const createCashfreeOrder = async (req, res) => {
       amount,
       "INR",
       userId.toString(),
-      "9999999999"
+      "9999999999",
     );
 
     // 3️⃣ Send session ID to frontend
     res.status(200).json({
-      paymentSessionId
+      paymentSessionId,
     });
-
   } catch (error) {
     console.log("Order creation error:", error);
     res.status(500).json({
-      message: "Failed to create order"
+      message: "Failed to create order",
     });
   }
 };
@@ -51,9 +48,7 @@ const createCashfreeOrder = async (req, res) => {
 // ================= VERIFY PAYMENT =================
 
 const verifyPayment = async (req, res) => {
-
   try {
-
     const orderId = req.params.orderId;
 
     // 1️⃣ Find order in DB
@@ -71,7 +66,6 @@ const verifyPayment = async (req, res) => {
     const paymentStatus = response.data.order_status;
 
     if (paymentStatus === "PAID") {
-
       // 3️⃣ Update order status
       order.status = "SUCCESS";
       await order.save();
@@ -86,8 +80,7 @@ const verifyPayment = async (req, res) => {
     }
 
     // 5️⃣ Redirect to expense page
-    return res.redirect("/expense.html");
-
+    return res.redirect("/expense");
   } catch (error) {
     console.log("Verification error:", error);
     res.status(500).send("Payment verification failed");
@@ -96,5 +89,5 @@ const verifyPayment = async (req, res) => {
 
 module.exports = {
   createCashfreeOrder,
-  verifyPayment
+  verifyPayment,
 };

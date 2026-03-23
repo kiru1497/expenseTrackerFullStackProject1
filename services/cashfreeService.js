@@ -3,7 +3,7 @@ const { Cashfree, CFEnvironment } = require("cashfree-pg");
 const cashfree = new Cashfree(
   CFEnvironment.SANDBOX,
   "TEST430329ae80e0f32e41a393d78b923034",
-  "TESTaf195616268bd6202eeb3bf8dc458956e7192a85"
+  "TESTaf195616268bd6202eeb3bf8dc458956e7192a85",
 );
 
 const createOrder = async (
@@ -11,7 +11,7 @@ const createOrder = async (
   orderAmount,
   orderCurrency = "INR",
   customerId,
-  customerPhone
+  customerPhone,
 ) => {
   try {
     const expiryDate = new Date(Date.now() + 60 * 60 * 1000);
@@ -24,21 +24,21 @@ const createOrder = async (
 
       customer_details: {
         customer_id: customerId,
-        customer_phone: customerPhone
+        customer_phone: customerPhone,
       },
 
       order_meta: {
-        return_url: "http://localhost:3000/payment-status/" + orderId,
+        return_url:
+          "http://98.130.44.198:3000/payment/payment-status/" + orderId,
         // payment_methods: "ccc,upi,nb"
       },
 
-      order_expiry_time: formattedExpiryDate
+      order_expiry_time: formattedExpiryDate,
     };
 
     const response = await cashfree.PGCreateOrder(request);
 
     return response.data.payment_session_id;
-
   } catch (error) {
     console.log("Error creating order:", error.message);
     throw error;
@@ -51,5 +51,5 @@ const fetchOrder = async (orderId) => {
 
 module.exports = {
   createOrder,
-  fetchOrder
+  fetchOrder,
 };
