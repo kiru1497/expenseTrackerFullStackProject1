@@ -35,10 +35,10 @@ app.use(
 app.use(compression());
 app.use(morgan("combined", { stream: accessLogStream }));
 
-// ✅ Serve static files
+//  Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ Page routes (VERY IMPORTANT)
+//  Page routes (VERY IMPORTANT)
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "signup.html"));
 });
@@ -51,7 +51,7 @@ app.get("/expense", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "expense.html"));
 });
 
-// ✅ API routes
+//  API routes
 app.use("/user", userRoutes);
 app.use("/expense", expenseRoutes);
 app.use("/payment", paymentRoutes);

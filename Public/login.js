@@ -7,13 +7,13 @@ async function handleLogin(event) {
   };
 
   try {
-    // ✅ FIXED (removed localhost)
+    // 
     const response = await axios.post("/user/login", loginDetails);
 
     if (response.status == 200) {
       alert("Login successful!");
 
-      // ✅ FIXED route
+      // route
       window.location.href = "/expense";
     }
   } catch (error) {

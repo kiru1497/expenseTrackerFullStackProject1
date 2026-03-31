@@ -16,5 +16,5 @@ module.exports = {
   UsersSignup,
   Expense,
   Order,
-  ForgotPasswordRequests
+  ForgotPasswordRequests,
 };

@@ -14,7 +14,6 @@ async function handleSignup(event) {
   }
 
   try {
-    // ✅ FIXED (removed localhost)
     const response = await axios.post("/user/signup", {
       name,
       email,
@@ -23,7 +22,6 @@ async function handleSignup(event) {
 
     alert("Signup Successful!");
 
-    // ✅ FIXED route
     window.location.href = "/login";
   } catch (error) {
     console.log(error);

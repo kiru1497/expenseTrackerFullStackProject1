@@ -5,16 +5,16 @@ const Order = sequelize.define("Order", {
   orderId: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
   },
   amount: {
     type: DataTypes.FLOAT,
-    allowNull: false
+    allowNull: false,
   },
   status: {
     type: DataTypes.STRING,
-    allowNull: false
-  }
+    allowNull: false,
+  },
 });
 
 module.exports = Order;

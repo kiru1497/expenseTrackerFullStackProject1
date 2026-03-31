@@ -5,22 +5,19 @@ const axios = require("axios");
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 
-
 // ================= FORGOT PASSWORD =================
 
 const forgotPassword = async (req, res) => {
-
   try {
-
     const { email } = req.body;
 
     const user = await UsersSignup.findOne({
-      where: { email }
+      where: { email },
     });
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -31,7 +28,7 @@ const forgotPassword = async (req, res) => {
     await ForgotPasswordRequests.create({
       id: id,
       usersSignupId: user.id,
-      isActive: true
+      isActive: true,
     });
 
     const resetLink = `http://localhost:3000/password/resetpassword/${id}`;
@@ -42,12 +39,12 @@ const forgotPassword = async (req, res) => {
       {
         sender: {
           email: "kiran.r1497@gmail.com",
-          name: "Expense Tracker"
+          name: "Expense Tracker",
         },
         to: [
           {
-            email: email
-          }
+            email: email,
+          },
         ],
         subject: "Password Reset Request",
         textContent: `
@@ -60,44 +57,36 @@ Click the link below to reset your password:
 ${resetLink}
 
 If you did not request this, please ignore this email.
-`
+`,
       },
       {
         headers: {
           "api-key": process.env.BREVO_API_KEY,
-          "Content-Type": "application/json"
-        }
-      }
+          "Content-Type": "application/json",
+        },
+      },
     );
 
     res.status(200).json({
-      message: "Password reset email sent"
+      message: "Password reset email sent",
     });
-
   } catch (error) {
-
     console.log("BREVO ERROR:", error.response?.data || error);
 
     res.status(500).json({
-      message: "Failed to send email"
+      message: "Failed to send email",
     });
-
   }
-
 };
-
-
 
 // ================= RESET PASSWORD PAGE =================
 
 const resetPasswordPage = async (req, res) => {
-
   try {
-
     const id = req.params.id;
 
     const request = await ForgotPasswordRequests.findOne({
-      where: { id: id }
+      where: { id: id },
     });
 
     if (!request || request.isActive === false) {
@@ -118,29 +107,21 @@ const resetPasswordPage = async (req, res) => {
         <button type="submit">Reset Password</button>
       </form>
     `);
-
   } catch (error) {
-
     console.log(error);
     res.status(500).send("Something went wrong");
-
   }
-
 };
-
-
 
 // ================= UPDATE PASSWORD =================
 
 const updatePassword = async (req, res) => {
-
   try {
-
     const { id } = req.params;
     const { newpassword } = req.body;
 
     const request = await ForgotPasswordRequests.findOne({
-      where: { id: id }
+      where: { id: id },
     });
 
     if (!request || request.isActive === false) {
@@ -160,21 +141,17 @@ const updatePassword = async (req, res) => {
 
     await request.save();
 
-    res.send("Password updated successfully. You can now login with the new password.");
-
+    res.send(
+      "Password updated successfully. You can now login with the new password.",
+    );
   } catch (error) {
-
     console.log(error);
     res.status(500).send("Failed to update password");
-
   }
-
 };
-
-
 
 module.exports = {
   forgotPassword,
   resetPasswordPage,
-  updatePassword
+  updatePassword,
 };

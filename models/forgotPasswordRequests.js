@@ -5,12 +5,12 @@ const ForgotPasswordRequests = sequelize.define("ForgotPasswordRequests", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    primaryKey: true,
   },
   isActive: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true
-  }
+    defaultValue: true,
+  },
 });
 
 module.exports = ForgotPasswordRequests;

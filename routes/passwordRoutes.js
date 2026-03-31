@@ -3,10 +3,14 @@ const router = express.Router();
 
 const passwordController = require("../controllers/passwordController");
 
-router.post("/forgotpassword", (req,res,next)=>{
-  console.log("Forgot password route hit");
-  next();
-}, passwordController.forgotPassword);
+router.post(
+  "/forgotpassword",
+  (req, res, next) => {
+    console.log("Forgot password route hit");
+    next();
+  },
+  passwordController.forgotPassword,
+);
 
 router.get("/resetpassword/:id", passwordController.resetPasswordPage);
 
