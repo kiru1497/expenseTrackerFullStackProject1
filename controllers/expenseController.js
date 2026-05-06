@@ -1,41 +1,31 @@
 const UsersSignup = require("../models/usersSignup");
 const Expense = require("../models/expense");
-const { Sequelize } = require("sequelize");
-const { sequelize } = require("../utils/db");
 const { generateInsights } = require("../services/aiService");
 const { uploadToS3 } = require("../services/s3Service");
 
 // ================= ADD EXPENSE =================
 
 const addExpense = async (req, res) => {
-  const t = await sequelize.transaction();
-
   try {
     const { category, description, amount, note } = req.body;
 
     if (!category || !description || !amount) {
-      await t.rollback();
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const expense = await Expense.create(
-      {
-        category,
-        description,
-        amount,
-        note,
-        usersSignupId: req.session.userId,
-      },
-      { transaction: t },
-    );
+    const expense = new Expense({
+      category,
+      description,
+      amount,
+      note,
+      userId: req.session.userId, // ✅ Mongoose field
+    });
 
-    await t.commit();
+    await expense.save();
 
     res.status(201).json(expense);
   } catch (error) {
-    await t.rollback();
     console.log(error);
-
     res.status(500).json({ message: "Failed to create expense" });
   }
 };
@@ -44,11 +34,9 @@ const addExpense = async (req, res) => {
 
 const getAllExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.findAll({
-      where: {
-        usersSignupId: req.session.userId,
-      },
-    });
+    const expenses = await Expense.find({
+      userId: req.session.userId,
+    }).sort({ createdAt: -1 });
 
     res.status(200).json(expenses);
   } catch (error) {
@@ -60,29 +48,19 @@ const getAllExpenses = async (req, res) => {
 // ================= DELETE EXPENSE =================
 
 const deleteExpense = async (req, res) => {
-  const t = await sequelize.transaction();
-
   try {
-    const deleted = await Expense.destroy({
-      where: {
-        id: req.params.id,
-        usersSignupId: req.session.userId,
-      },
-      transaction: t,
+    const deleted = await Expense.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.session.userId,
     });
 
     if (!deleted) {
-      await t.rollback();
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    await t.commit();
-
     res.status(200).json({ message: "Expense deleted" });
   } catch (error) {
-    await t.rollback();
     console.log(error);
-
     res.status(500).json({ message: "Failed to delete expense" });
   }
 };
@@ -90,37 +68,30 @@ const deleteExpense = async (req, res) => {
 // ================= UPDATE EXPENSE =================
 
 const updateExpense = async (req, res) => {
-  const t = await sequelize.transaction();
-
   try {
-    const { category, description, amount } = req.body;
+    const { category, description, amount, note } = req.body;
 
-    const expense = await Expense.findOne({
-      where: {
-        id: req.params.id,
-        usersSignupId: req.session.userId,
+    const updated = await Expense.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.session.userId,
       },
-      transaction: t,
-    });
+      {
+        category,
+        description,
+        amount,
+        note,
+      },
+      { new: true },
+    );
 
-    if (!expense) {
-      await t.rollback();
+    if (!updated) {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    expense.category = category;
-    expense.description = description;
-    expense.amount = amount;
-
-    await expense.save({ transaction: t });
-
-    await t.commit();
-
-    res.status(200).json(expense);
+    res.status(200).json(updated);
   } catch (error) {
-    await t.rollback();
     console.log(error);
-
     res.status(500).json({ message: "Failed to update expense" });
   }
 };
@@ -129,21 +100,32 @@ const updateExpense = async (req, res) => {
 
 const getLeaderboard = async (req, res) => {
   try {
-    const leaderboard = await UsersSignup.findAll({
-      attributes: [
-        "id",
-        "name",
-        [Sequelize.fn("SUM", Sequelize.col("Expenses.amount")), "totalExpense"],
-      ],
-      include: [
-        {
-          model: Expense,
-          attributes: [],
+    const leaderboard = await Expense.aggregate([
+      {
+        $group: {
+          _id: "$userId",
+          totalExpense: { $sum: "$amount" },
         },
-      ],
-      group: ["usersSignup.id"],
-      order: [[Sequelize.literal("totalExpense"), "DESC"]],
-    });
+      },
+      {
+        $lookup: {
+          from: "users", // collection name (IMPORTANT)
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 0,
+          userId: "$user._id",
+          name: "$user.name",
+          totalExpense: 1,
+        },
+      },
+      { $sort: { totalExpense: -1 } },
+    ]);
 
     res.status(200).json(leaderboard);
   } catch (error) {
@@ -158,18 +140,21 @@ const getSpendingInsights = async (req, res) => {
   try {
     const userId = req.session.userId;
 
-    const expenses = await Expense.findAll({
-      attributes: [
-        "category",
-        [Sequelize.fn("SUM", Sequelize.col("amount")), "total"],
-      ],
-      where: { usersSignupId: userId },
-      group: ["category"],
-    });
+    const expenses = await Expense.aggregate([
+      {
+        $match: { userId: new require("mongoose").Types.ObjectId(userId) },
+      },
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
 
     const formattedData = expenses.map((e) => ({
-      category: e.category,
-      total: parseFloat(e.get("total")),
+      category: e._id,
+      total: e.total,
     }));
 
     const insights = await generateInsights(formattedData);
@@ -181,21 +166,21 @@ const getSpendingInsights = async (req, res) => {
   }
 };
 
+// ================= DOWNLOAD EXPENSES =================
+
 const downloadExpenses = async (req, res) => {
   try {
     const userId = req.session.userId;
 
-    const user = await UsersSignup.findByPk(userId);
+    const user = await UsersSignup.findById(userId);
 
     // ❌ Not premium → block
-    if (!user.isPremium) {
+    if (!user || !user.isPremium) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     // 1️⃣ Fetch expenses
-    const expenses = await Expense.findAll({
-      where: { usersSignupId: userId },
-    });
+    const expenses = await Expense.find({ userId });
 
     // 2️⃣ Convert to CSV
     let data = "Date,Description,Category,Amount\n";
@@ -210,7 +195,7 @@ const downloadExpenses = async (req, res) => {
 
     const result = await uploadToS3(data, fileName);
 
-    // 4️⃣ Send signed URL to frontend ✅
+    // 4️⃣ Send signed URL
     res.status(200).json({
       signedUrl: result.signedUrl,
     });

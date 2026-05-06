@@ -16,15 +16,17 @@ const createCashfreeOrder = async (req, res) => {
     const orderId = "order_" + uuidv4();
     const amount = 999;
 
-    // 1️⃣ Save order in DB with PENDING status
-    await Order.create({
+    // 💾 Save order in MongoDB
+    const order = new Order({
       orderId,
       amount,
       status: "PENDING",
-      usersSignupId: userId,
+      userId: userId, // ✅ correct field
     });
 
-    // 2️⃣ Call Cashfree to create payment session
+    await order.save();
+
+    // 💳 Create payment session (Cashfree)
     const paymentSessionId = await createOrder(
       orderId,
       amount,
@@ -33,7 +35,6 @@ const createCashfreeOrder = async (req, res) => {
       "9999999999",
     );
 
-    // 3️⃣ Send session ID to frontend
     res.status(200).json({
       paymentSessionId,
     });
@@ -51,14 +52,14 @@ const verifyPayment = async (req, res) => {
   try {
     const orderId = req.params.orderId;
 
-    // 1️⃣ Find order in DB
-    const order = await Order.findOne({ where: { orderId } });
+    // 🔍 Find order
+    const order = await Order.findOne({ orderId });
 
     if (!order) {
       return res.status(404).send("Order not found");
     }
 
-    // 2️⃣ Fetch latest order status from Cashfree
+    // 🔄 Fetch latest status from Cashfree
     const response = await fetchOrder(orderId);
 
     console.log("Cashfree order status:", response.data);
@@ -66,12 +67,12 @@ const verifyPayment = async (req, res) => {
     const paymentStatus = response.data.order_status;
 
     if (paymentStatus === "PAID") {
-      // 3️⃣ Update order status
+      // ✅ Update order status
       order.status = "SUCCESS";
       await order.save();
 
-      // 4️⃣ Update user premium status
-      const user = await UsersSignup.findByPk(order.usersSignupId);
+      // 🔍 Find user
+      const user = await UsersSignup.findById(order.userId);
 
       if (user) {
         user.isPremium = true;
@@ -79,8 +80,8 @@ const verifyPayment = async (req, res) => {
       }
     }
 
-    // 5️⃣ Redirect to expense page
-    return res.redirect("/expense");
+    // 🔁 Redirect after verification
+    return res.redirect("/expense-page"); // ⚠️ matches your app.js route
   } catch (error) {
     console.log("Verification error:", error);
     res.status(500).send("Payment verification failed");

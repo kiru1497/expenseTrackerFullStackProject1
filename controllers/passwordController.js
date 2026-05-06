@@ -11,9 +11,8 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await UsersSignup.findOne({
-      where: { email },
-    });
+    // 🔍 Find user
+    const user = await UsersSignup.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
@@ -21,19 +20,21 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    // Generate UUID reset token
+    // 🆔 Generate UUID
     const id = uuidv4();
 
-    // Store reset request in DB
-    await ForgotPasswordRequests.create({
-      id: id,
-      usersSignupId: user.id,
+    // 💾 Store reset request
+    const resetRequest = new ForgotPasswordRequests({
+      _id: id, // ✅ IMPORTANT (you defined _id as string)
+      userId: user._id,
       isActive: true,
     });
 
+    await resetRequest.save();
+
     const resetLink = `http://localhost:3000/password/resetpassword/${id}`;
 
-    // Send email via Brevo
+    // 📧 Send email via Brevo
     await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
@@ -85,9 +86,7 @@ const resetPasswordPage = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const request = await ForgotPasswordRequests.findOne({
-      where: { id: id },
-    });
+    const request = await ForgotPasswordRequests.findById(id);
 
     if (!request || request.isActive === false) {
       return res.status(404).send("Invalid or expired reset link");
@@ -120,25 +119,27 @@ const updatePassword = async (req, res) => {
     const { id } = req.params;
     const { newpassword } = req.body;
 
-    const request = await ForgotPasswordRequests.findOne({
-      where: { id: id },
-    });
+    const request = await ForgotPasswordRequests.findById(id);
 
     if (!request || request.isActive === false) {
       return res.status(404).send("Invalid or expired reset link");
     }
 
-    const user = await UsersSignup.findByPk(request.usersSignupId);
+    // 🔍 Find user
+    const user = await UsersSignup.findById(request.userId);
 
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // 🔐 Hash new password
     const hashedPassword = await bcrypt.hash(newpassword, 10);
 
     user.password = hashedPassword;
-
     await user.save();
 
-    // Deactivate reset link
+    // ❌ Deactivate reset link
     request.isActive = false;
-
     await request.save();
 
     res.send(

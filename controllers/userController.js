@@ -1,23 +1,29 @@
 const bcrypt = require("bcrypt");
 const UsersSignup = require("../models/usersSignup");
 
+// ➕ SIGNUP
 const addUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const existingUser = await UsersSignup.findOne({ where: { email } });
+    // 🔍 Check if user already exists
+    const existingUser = await UsersSignup.findOne({ email });
 
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    // 🔐 Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await UsersSignup.create({
+    // 💾 Create new user
+    const newUser = new UsersSignup({
       name,
       email,
       password: hashedPassword,
     });
+
+    await newUser.save();
 
     res.status(201).json({
       message: "User created successfully",
@@ -30,11 +36,13 @@ const addUser = async (req, res) => {
   }
 };
 
+// 🔐 LOGIN
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await UsersSignup.findOne({ where: { email } });
+    // 🔍 Find user by email
+    const user = await UsersSignup.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
@@ -42,6 +50,7 @@ const loginUser = async (req, res) => {
       });
     }
 
+    // 🔑 Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -50,7 +59,8 @@ const loginUser = async (req, res) => {
       });
     }
 
-    req.session.userId = user.id;
+    // 🧠 Store user in session (Mongoose uses _id)
+    req.session.userId = user._id;
 
     res.status(200).json({
       message: "User login successful",
@@ -63,16 +73,17 @@ const loginUser = async (req, res) => {
   }
 };
 
+// 👤 GET USER
 const getUser = async (req, res) => {
   try {
-    const user = await UsersSignup.findByPk(req.session.userId);
+    const user = await UsersSignup.findById(req.session.userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json({
-      id: user.id,
+      id: user._id,
       name: user.name,
       email: user.email,
       isPremium: user.isPremium,

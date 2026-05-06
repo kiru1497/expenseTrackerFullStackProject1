@@ -18,6 +18,7 @@ const accessLogStream = fs.createWriteStream(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
@@ -47,7 +48,7 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
-app.get("/expense", (req, res) => {
+app.get("/expense-page", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "expense.html"));
 });
 
@@ -57,23 +58,18 @@ app.use("/expense", expenseRoutes);
 app.use("/payment", paymentRoutes);
 app.use("/password", passwordRoutes);
 
-const { connectDb, sequelize } = require("./utils/db");
-require("./models/associations");
+const mongoose = require("mongoose");
 
-const startServer = async () => {
-  try {
-    await connectDb();
-    console.log("DB connection verified");
+mongoose
+  .connect("mongodb://127.0.0.1:27017/expenseDB")
+  .then(() => {
+    console.log("MongoDB connected");
 
-    await sequelize.sync();
-    console.log("All models synced");
-
+    // ✅ Start server AFTER DB connects
     app.listen(3000, () => {
-      console.log("Server is running on port 3000");
+      console.log("Server running on port 3000");
     });
-  } catch (error) {
-    console.log("Failed to start server:", error);
-  }
-};
-
-startServer();
+  })
+  .catch((err) => {
+    console.log("DB connection failed:", err);
+  });

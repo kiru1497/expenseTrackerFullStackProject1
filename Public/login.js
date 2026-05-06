@@ -7,14 +7,14 @@ async function handleLogin(event) {
   };
 
   try {
-    // 
+    //
     const response = await axios.post("/user/login", loginDetails);
 
     if (response.status == 200) {
       alert("Login successful!");
 
       // route
-      window.location.href = "/expense";
+      window.location.href = "/expense-page";
     }
   } catch (error) {
     if (error.response) {

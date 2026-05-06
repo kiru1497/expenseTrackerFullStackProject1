@@ -28,8 +28,7 @@ const createOrder = async (
       },
 
       order_meta: {
-        return_url:
-          "http://98.130.44.198:3000/payment/payment-status/" + orderId,
+        return_url: "http://localhost:3000/payment/payment-status/" + orderId,
         // payment_methods: "ccc,upi,nb"
       },
 
