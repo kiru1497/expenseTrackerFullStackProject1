@@ -94,8 +94,33 @@ const getUser = async (req, res) => {
   }
 };
 
+// 🚪 LOGOUT
+const logoutUser = async (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({
+          message: "Logout failed",
+        });
+      }
+
+      res.clearCookie("connect.sid");
+
+      return res.status(200).json({
+        message: "Logout successful",
+      });
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
 module.exports = {
   addUser,
   loginUser,
   getUser,
+  logoutUser,
 };

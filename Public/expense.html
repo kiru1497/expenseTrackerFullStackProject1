@@ -14,10 +14,405 @@
       src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
       defer
     ></script>
+
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        font-family: "Poppins", sans-serif;
+        background: #020617;
+        color: #ffffff;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* Background */
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          linear-gradient(rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.94)),
+          url("https://images.unsplash.com/photo-1642790106117-e829e14a795f?q=80&w=2070&auto=format&fit=crop")
+            center/cover no-repeat;
+        z-index: -3;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at 20% 20%,
+            rgba(0, 255, 255, 0.08),
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 80% 30%,
+            rgba(0, 110, 255, 0.12),
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 70% 80%,
+            rgba(0, 255, 170, 0.08),
+            transparent 25%
+          );
+        z-index: -2;
+      }
+
+      .container {
+        max-width: 1350px;
+      }
+
+      /* Cards */
+
+      .card {
+        background: rgba(3, 15, 35, 0.72);
+        border: 1px solid rgba(0, 255, 255, 0.22);
+        border-radius: 22px;
+        backdrop-filter: blur(18px);
+        box-shadow:
+          0 0 25px rgba(0, 255, 255, 0.08),
+          0 0 70px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+      }
+
+      .card-header {
+        background: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: #00fff2 !important;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 22px 26px;
+      }
+
+      .card-body {
+        padding: 26px;
+      }
+
+      /* Header */
+
+      h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        color: #ffffff;
+      }
+
+      /* Premium Button */
+
+      #buyPremiumBtn {
+        border: 1px solid rgba(255, 196, 0, 0.4);
+        background: linear-gradient(
+          135deg,
+          rgba(255, 196, 0, 0.18),
+          rgba(255, 140, 0, 0.08)
+        );
+        color: #ffd54f;
+        border-radius: 14px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: 0.3s ease;
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.12);
+      }
+
+      #buyPremiumBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 28px rgba(255, 193, 7, 0.3);
+      }
+
+      /* Logout Button */
+
+      #logoutBtn {
+        border: 1px solid rgba(255, 0, 85, 0.35);
+        background: linear-gradient(
+          135deg,
+          rgba(255, 0, 85, 0.16),
+          rgba(255, 80, 120, 0.08)
+        );
+        color: #ff7aa2;
+        border-radius: 14px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: 0.3s ease;
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.12);
+      }
+
+      #logoutBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 28px rgba(255, 0, 85, 0.28);
+        color: #ffffff;
+      }
+
+      /* Inputs */
+
+      .form-control {
+        height: 50px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 255, 255, 0.22);
+        background: rgba(5, 18, 40, 0.88);
+        color: #ffffff !important;
+        box-shadow: none !important;
+      }
+
+      .form-control::placeholder {
+        color: #94a3b8;
+      }
+
+      .form-control:focus {
+        background: rgba(5, 18, 40, 0.95);
+        border-color: #00fff2;
+        color: #ffffff !important;
+        box-shadow:
+          0 0 0 0.15rem rgba(0, 255, 242, 0.08),
+          0 0 18px rgba(0, 255, 242, 0.15) !important;
+      }
+
+      /* Tables */
+
+      .table {
+        margin-bottom: 0;
+        color: #ffffff !important;
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      .table * {
+        color: #ffffff !important;
+      }
+
+      .table thead {
+        background: rgba(0, 0, 0, 0.22);
+      }
+
+      .table thead th {
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.08);
+        padding: 18px;
+        font-weight: 600;
+        font-size: 1rem;
+        background: rgba(0, 0, 0, 0.18) !important;
+      }
+
+      .table tbody td {
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.08);
+        padding: 14px 16px;
+        vertical-align: middle;
+        background: rgba(2, 12, 30, 0.45);
+      }
+
+      .table-striped > tbody > tr:nth-of-type(odd) > * {
+        background: rgba(4, 18, 40, 0.55) !important;
+        color: #ffffff !important;
+      }
+
+      .table-striped > tbody > tr:nth-of-type(even) > * {
+        background: rgba(2, 12, 30, 0.45) !important;
+        color: #ffffff !important;
+      }
+
+      .table-bordered {
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      /* Force all text inside tables to white */
+
+      table,
+      tr,
+      td,
+      th,
+      tbody,
+      thead,
+      span,
+      p,
+      label {
+        color: #ffffff !important;
+      }
+
+      /* Buttons */
+
+      .btn {
+        border-radius: 14px;
+        font-weight: 600;
+        transition: 0.3s ease;
+      }
+
+      .btn-primary {
+        border: none;
+        background: linear-gradient(135deg, #009dff, #1d4dff);
+        color: #ffffff;
+        box-shadow: 0 0 18px rgba(0, 149, 255, 0.28);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 28px rgba(0, 149, 255, 0.45);
+      }
+
+      .btn-warning {
+        background: rgba(255, 193, 7, 0.15);
+        border: 1px solid rgba(255, 193, 7, 0.35);
+        color: #ffd54f;
+      }
+
+      .btn-warning:hover {
+        background: rgba(255, 193, 7, 0.25);
+        color: #ffffff;
+      }
+
+      .btn-info {
+        background: rgba(0, 255, 255, 0.14);
+        border: 1px solid rgba(0, 255, 255, 0.3);
+        color: #00fff2;
+      }
+
+      .btn-info:hover {
+        background: rgba(0, 255, 255, 0.24);
+        color: #ffffff;
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #00d68f, #00b894);
+        border: none;
+      }
+
+      .btn-danger {
+        background: rgba(255, 0, 85, 0.14);
+        border: 1px solid rgba(255, 0, 85, 0.35);
+        color: #ff4f7a;
+      }
+
+      .btn-danger:hover {
+        background: rgba(255, 0, 85, 0.24);
+        color: #ffffff;
+      }
+
+      .btn-outline-primary,
+      .btn-outline-secondary {
+        border: 1px solid rgba(0, 255, 255, 0.22);
+        color: #00fff2;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .btn-outline-primary:hover,
+      .btn-outline-secondary:hover {
+        background: rgba(0, 255, 255, 0.12);
+        color: #ffffff;
+      }
+
+      /* Alerts */
+
+      .alert {
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(14px);
+      }
+
+      .alert-success {
+        background: rgba(0, 255, 170, 0.08);
+        color: #8effd3;
+      }
+
+      .alert-info {
+        background: rgba(0, 180, 255, 0.08);
+        color: #8bdcff;
+      }
+
+      /* List */
+
+      .list-group-item {
+        background: rgba(4, 18, 40, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+        border-radius: 14px !important;
+        margin-bottom: 12px;
+      }
+
+      .list-group {
+        gap: 12px;
+      }
+
+      /* Pagination */
+
+      #pageInfo {
+        color: #00fff2;
+        font-size: 1rem;
+      }
+
+      /* Leaderboard + Report */
+
+      #leaderboardSection table,
+      #reportSection table {
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      /* Scrollbar */
+
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #020617;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 255, 255, 0.28);
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 255, 255, 0.45);
+      }
+
+      /* Responsive */
+
+      @media (max-width: 992px) {
+        .table {
+          min-width: 850px;
+        }
+
+        .card-body {
+          overflow-x: auto;
+        }
+      }
+
+      @media (max-width: 768px) {
+        h2 {
+          font-size: 1.5rem;
+        }
+
+        .card-body,
+        .card-header {
+          padding: 18px;
+        }
+
+        #buyPremiumBtn {
+          font-size: 0.9rem;
+          padding: 10px 16px;
+        }
+      }
+    </style>
   </head>
 
-  <body class="bg-light">
+  <body>
     <div class="container py-4">
       <!-- HEADER -->
 
@@ -27,9 +422,9 @@
         >
           <h2 class="mb-0">Expense Tracker</h2>
 
-          <button id="buyPremiumBtn" class="btn btn-warning">
-            Buy Premium Membership
-          </button>
+          <button id="buyPremiumBtn" class="btn btn-warning">Go Premium</button>
+
+          <button id="logoutBtn" class="btn">Logout</button>
         </div>
       </div>
 
@@ -49,12 +444,12 @@
       <!-- EXPENSE INPUT TABLE -->
 
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">Add Expense</div>
+        <div class="card-header">Add Expense</div>
 
         <div class="card-body">
           <form id="expenseForm">
             <table class="table table-striped table-bordered align-middle">
-              <thead class="table-dark">
+              <thead>
                 <tr>
                   <th>Category</th>
                   <th>Description</th>
@@ -264,9 +659,7 @@
       <!-- EXPENSE LIST -->
 
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-secondary text-white">
-          Submitted Expenses
-        </div>
+        <div class="card-header">Submitted Expenses</div>
 
         <div class="card-body">
           <ul id="expenseList" class="list-group"></ul>
@@ -292,11 +685,11 @@
       <!-- LEADERBOARD -->
 
       <div id="leaderboardSection" class="card shadow-sm mb-4 d-none">
-        <div class="card-header bg-info text-white">Leaderboard</div>
+        <div class="card-header">Leaderboard</div>
 
         <div class="card-body">
           <table class="table table-bordered">
-            <thead class="table-dark">
+            <thead>
               <tr>
                 <th>Rank</th>
                 <th>User</th>
@@ -312,7 +705,7 @@
       <!-- AI INSIGHTS -->
 
       <div id="aiInsightsSection" class="card shadow-sm mb-4 d-none">
-        <div class="card-header bg-warning">AI Spending Insights</div>
+        <div class="card-header">AI Spending Insights</div>
 
         <div class="card-body">
           <div id="aiInsightsContent" class="alert alert-info mb-0"></div>
@@ -322,7 +715,7 @@
       <!-- REPORT SECTION -->
 
       <div id="reportSection" class="card shadow-sm mb-5 d-none">
-        <div class="card-header bg-success text-white">Expense Reports</div>
+        <div class="card-header">Expense Reports</div>
 
         <div class="card-body">
           <div class="d-flex gap-2 mb-3">
@@ -344,7 +737,7 @@
           </div>
 
           <table class="table table-bordered">
-            <thead class="table-dark">
+            <thead>
               <tr>
                 <th>Date</th>
                 <th>Description</th>
@@ -360,6 +753,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="expense.js"></script>
   </body>
 </html>

@@ -10,6 +10,26 @@ const leaderboardBody = document.getElementById("leaderboardBody");
 const aiSection = document.getElementById("aiInsightsSection");
 const aiContent = document.getElementById("aiInsightsContent");
 
+// 🚪 LOGOUT
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      const response = await axios.post("/user/logout");
+
+      if (response.status === 200) {
+        window.location.href = "/login.html";
+      }
+    } catch (error) {
+      console.log(error);
+
+      alert("Logout failed");
+    }
+  });
+}
+
 // ================= PAGINATION =================
 
 const prevPageBtn = document.getElementById("prevPageBtn");
@@ -158,14 +178,26 @@ tableBody.addEventListener("click", async (e) => {
 
     const expense = response.data;
 
+    // MongoDB returns _id instead of id
+    expense.id = expense._id;
+
     allExpenses.push(expense);
+
+    // Move to latest page automatically
+    currentPage = Math.ceil(allExpenses.length / expensesPerPage);
 
     renderExpensesPage(currentPage);
 
+    // Clear fields
     row.querySelector(".description").value = "";
     row.querySelector(".amount").value = "";
   } catch (error) {
-    console.error(error);
+    console.error("ADD EXPENSE ERROR:", error);
+
+    if (error.response) {
+      console.error("Server Response:", error.response.data);
+    }
+
     alert("Error adding expense");
   }
 });
@@ -338,6 +370,7 @@ if (monthlyBtn) {
 }
 
 // ================= DOWNLOAD CSV =================
+
 if (downloadBtn) {
   downloadBtn.addEventListener("click", async () => {
     if (!isPremiumUser) return;
@@ -403,7 +436,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const expenseResponse = await axios.get("/expense/expenses");
 
-    allExpenses = expenseResponse.data;
+    allExpenses = expenseResponse.data.map((expense) => ({
+      ...expense,
+      id: expense._id,
+    }));
 
     renderExpensesPage(currentPage);
   } catch (error) {

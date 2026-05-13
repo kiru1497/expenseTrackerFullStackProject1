@@ -32,3 +32,5 @@ async function handleSignup(event) {
     alert(message);
   }
 }
+
+document.getElementById("signupForm").addEventListener("submit", handleSignup);
